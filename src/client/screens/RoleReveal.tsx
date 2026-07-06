@@ -111,7 +111,13 @@ export const RoleReveal = ({
         className={`absolute inset-0 ${config.bg} mix-blend-overlay pointer-events-none`}
       />
       <div
-        className={`absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-${player.role === 'spy' ? 'red' : player.role === 'detective' ? 'blue' : 'green'}-900/60 via-transparent to-transparent pointer-events-none`}
+        className={`absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] pointer-events-none ${
+          player.role === 'spy'
+            ? 'from-red-900/60'
+            : player.role === 'detective'
+              ? 'from-blue-900/60'
+              : 'from-green-900/60'
+        } via-transparent to-transparent`}
       />
 
       <p className="text-[10px] text-white tracking-[0.5em] font-bold mb-12 uppercase animate-pulse opacity-80">

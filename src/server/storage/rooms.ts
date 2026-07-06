@@ -1,5 +1,4 @@
 import { redis } from '@devvit/web/server';
-import { redis as sortedRedis } from '@devvit/redis';
 import type { GameRoom, Player, Role } from '../../shared/types';
 
 const GAME_PREFIX = 'game:';
@@ -201,6 +200,7 @@ export async function submitNightAction(
 export async function resolveNight(postId: string): Promise<GameRoom> {
   const game = await getGame(postId);
   if (!game) throw new Error('Game not found');
+  if (game.phase !== 'night') return game;
 
   const spy = Object.values(game.players).find((p) => p.role === 'spy');
   const detective = Object.values(game.players).find(
@@ -277,6 +277,7 @@ export async function submitVote(
 export async function resolveVotes(postId: string): Promise<GameRoom> {
   const game = await getGame(postId);
   if (!game) throw new Error('Game not found');
+  if (game.phase !== 'voting') return game;
 
   const voteCounts: Record<string, number> = {};
   for (const target of Object.values(game.votes)) {
@@ -425,31 +426,25 @@ async function updateLeaderboard(
   game: GameRoom,
   winner: 'citizens' | 'spy'
 ): Promise<void> {
-  for (const username of game.alivePlayers) {
+  const allPlayers = [...game.alivePlayers, ...game.deadPlayers];
+
+  for (const username of allPlayers) {
     const player = game.players[username];
     if (!player) continue;
 
     const key = `lb:${username}`;
-    const field = player.role === 'spy' ? 'spyWins' : 'citizenWins';
-    await sortedRedis.hIncrBy(key, field, 1);
-    await sortedRedis.hIncrBy(key, 'gamesPlayed', 1);
+    await redis.hIncrBy(key, 'gamesPlayed', 1);
   }
 
-  for (const username of game.deadPlayers) {
-    const key = `lb:${username}`;
-    await sortedRedis.hIncrBy(key, 'gamesPlayed', 1);
-  }
-
-  const allPlayers = [...game.alivePlayers, ...game.deadPlayers];
   for (const username of allPlayers) {
     const player = game.players[username];
     if (!player) continue;
 
     const key = `lb:${username}`;
     if (winner === 'citizens' && player.role !== 'spy') {
-      await sortedRedis.hIncrBy(key, 'citizenWins', 1);
+      await redis.hIncrBy(key, 'citizenWins', 1);
     } else if (winner === 'spy' && player.role === 'spy') {
-      await sortedRedis.hIncrBy(key, 'spyWins', 1);
+      await redis.hIncrBy(key, 'spyWins', 1);
     }
   }
 
@@ -460,13 +455,12 @@ async function updateLeaderboard(
 
     let score = 0;
     const key = `lb:${username}`;
-    const stats = await sortedRedis.hGetAll(key);
+    const stats = await redis.hGetAll(key);
     if (stats) {
       score =
         Number(stats.citizenWins ?? '0') * 10 +
-        Number(stats.spyWins ?? '0') * 15 +
-        Number(stats.detectiveWins ?? '0') * 20;
+        Number(stats.spyWins ?? '0') * 15;
     }
-    await sortedRedis.zAdd(leaderboardKey, { member: username, score });
+    await redis.zAdd(leaderboardKey, { member: username, score });
   }
 }

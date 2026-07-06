@@ -2,6 +2,7 @@ import './index.css';
 
 import { StrictMode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { navigateTo } from '@devvit/web/client';
 import { useGameState } from './hooks/useGameState';
 import {
   CustomStyles,
@@ -64,7 +65,7 @@ export const App = () => {
           <div className="text-center glass-panel rounded-3xl p-8 max-w-sm">
             <p className="text-red-400 mb-6 font-medium">{error}</p>
             <PremiumButton
-              onClick={() => window.location.reload()}
+              onClick={() => navigateTo(window.location.href)}
               variant="secondary"
             >
               Retry

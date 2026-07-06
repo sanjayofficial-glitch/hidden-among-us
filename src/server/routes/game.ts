@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
-import { context, reddit } from '@devvit/web/server';
-import { redis as sortedRedis } from '@devvit/redis';
+import { context, reddit, redis } from '@devvit/web/server';
 import {
   getGame,
   createGame,
@@ -394,13 +393,13 @@ game.get('/comments', async (c) => {
 
 game.get('/leaderboard', async (c) => {
   try {
-    const top = await sortedRedis.zRange('leaderboard:global', 0, 9, {
+    const top = await redis.zRange('leaderboard:global', 0, 9, {
       by: 'rank',
     });
 
     const entries = await Promise.all(
       top.map(async (entry) => {
-        const stats = await sortedRedis.hGetAll(`lb:${entry.member}`);
+        const stats = await redis.hGetAll(`lb:${entry.member}`);
         return {
           username: entry.member,
           score: entry.score,
