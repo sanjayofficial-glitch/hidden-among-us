@@ -13,6 +13,8 @@ import {
   resolveVotes,
   advanceToNight,
   advanceToVoting,
+  advanceFromRoleReveal,
+  advanceFromEliminationReveal,
   checkAllNightActionsSubmitted,
   checkAllVotesSubmitted,
 } from '../storage/rooms';
@@ -327,6 +329,63 @@ game.post('/advance-to-voting', async (c) => {
   try {
     const gameRoom = await advanceToVoting(postId);
     return c.json({ status: 'ok', game: gameRoom });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return c.json<ErrorResponse>({ status: 'error', message }, 400);
+  }
+});
+
+game.post('/advance-from-role-reveal', async (c) => {
+  const { postId } = context;
+  if (!postId) {
+    return c.json<ErrorResponse>(
+      { status: 'error', message: 'postId required' },
+      400
+    );
+  }
+
+  try {
+    const gameRoom = await advanceFromRoleReveal(postId);
+    return c.json({ status: 'ok', game: gameRoom });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return c.json<ErrorResponse>({ status: 'error', message }, 400);
+  }
+});
+
+game.post('/advance-from-elimination-reveal', async (c) => {
+  const { postId } = context;
+  if (!postId) {
+    return c.json<ErrorResponse>(
+      { status: 'error', message: 'postId required' },
+      400
+    );
+  }
+
+  try {
+    const gameRoom = await advanceFromEliminationReveal(postId);
+    return c.json({ status: 'ok', game: gameRoom });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return c.json<ErrorResponse>({ status: 'error', message }, 400);
+  }
+});
+
+game.get('/comments', async (c) => {
+  const { postId } = context;
+  if (!postId) {
+    return c.json<ErrorResponse>(
+      { status: 'error', message: 'postId required' },
+      400
+    );
+  }
+
+  try {
+    // Reddit comments are available via the post's comment thread
+    // For now, return empty - discussion happens in the Reddit thread itself
+    const formatted: Array<{ author: string; body: string; created: number }> =
+      [];
+    return c.json({ status: 'ok', comments: formatted });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     return c.json<ErrorResponse>({ status: 'error', message }, 400);

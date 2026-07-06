@@ -154,7 +154,7 @@ export async function startGame(postId: string): Promise<GameRoom> {
 
   game.alivePlayers = playerUsernames;
   game.deadPlayers = [];
-  game.phase = 'night';
+  game.phase = 'role_reveal';
   game.round = 1;
   game.votes = {};
   game.nightActions = {};
@@ -301,7 +301,7 @@ export async function resolveVotes(postId: string): Promise<GameRoom> {
     game.lastEliminated = null;
     game.lastEliminatedRole = null;
     game.votes = {};
-    game.phase = 'reveal';
+    game.phase = 'elimination_reveal';
     await saveGame(game);
     return game;
   }
@@ -338,12 +338,46 @@ export async function resolveVotes(postId: string): Promise<GameRoom> {
   }
 
   game.votes = {};
-  game.phase = 'reveal';
+  game.phase = 'elimination_reveal';
   await saveGame(game);
   return game;
 }
 
 export async function advanceToNight(postId: string): Promise<GameRoom> {
+  const game = await getGame(postId);
+  if (!game) throw new Error('Game not found');
+
+  game.phase = 'night';
+  game.round += 1;
+  game.votes = {};
+  game.nightActions = {};
+  game.lastEliminated = null;
+  game.lastEliminatedRole = null;
+  game.investigationResult = {};
+
+  await saveGame(game);
+  return game;
+}
+
+export async function advanceFromRoleReveal(postId: string): Promise<GameRoom> {
+  const game = await getGame(postId);
+  if (!game) throw new Error('Game not found');
+
+  game.phase = 'night';
+  game.round = 1;
+  game.votes = {};
+  game.nightActions = {};
+  game.lastEliminated = null;
+  game.lastEliminatedRole = null;
+  game.investigationResult = {};
+
+  await saveGame(game);
+  return game;
+}
+
+export async function advanceFromEliminationReveal(
+  postId: string
+): Promise<GameRoom> {
   const game = await getGame(postId);
   if (!game) throw new Error('Game not found');
 

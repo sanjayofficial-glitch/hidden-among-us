@@ -179,6 +179,34 @@ export function useGameState() {
     return () => clearPolling();
   }, [state.game, startPolling, clearPolling]);
 
+  const advanceFromRoleReveal = useCallback(async () => {
+    try {
+      const res = await fetch('/api/game/advance-from-role-reveal', {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (data.status === 'ok') {
+        setState((s) => ({ ...s, game: data.game, error: null }));
+      }
+    } catch {
+      setState((s) => ({ ...s, error: 'Failed to advance' }));
+    }
+  }, []);
+
+  const advanceFromEliminationReveal = useCallback(async () => {
+    try {
+      const res = await fetch('/api/game/advance-from-elimination-reveal', {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (data.status === 'ok') {
+        setState((s) => ({ ...s, game: data.game, error: null }));
+      }
+    } catch {
+      setState((s) => ({ ...s, error: 'Failed to advance' }));
+    }
+  }, []);
+
   return {
     ...state,
     joinGame,
@@ -188,6 +216,8 @@ export function useGameState() {
     submitVote,
     advanceToNight,
     advanceToVoting,
+    advanceFromRoleReveal,
+    advanceFromEliminationReveal,
     refresh: fetchState,
   };
 }

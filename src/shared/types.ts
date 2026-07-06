@@ -2,9 +2,11 @@ export type Role = 'spy' | 'detective' | 'citizen';
 
 export type GamePhase =
   | 'lobby'
+  | 'role_reveal'
   | 'night'
   | 'discussion'
   | 'voting'
+  | 'elimination_reveal'
   | 'reveal'
   | 'ended';
 
