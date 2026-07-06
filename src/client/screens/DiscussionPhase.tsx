@@ -37,6 +37,7 @@ export const DiscussionPhase = ({
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchComments();
     const pollInterval = setInterval(() => {
       void fetchComments();
