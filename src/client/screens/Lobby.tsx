@@ -9,12 +9,6 @@ type LobbyProps = {
   onStart: () => void;
 };
 
-const ROLE_EMOJI: Record<string, string> = {
-  spy: '🕵️',
-  detective: '🔍',
-  citizen: '👤',
-};
-
 export const Lobby = ({
   game,
   username,
@@ -30,12 +24,10 @@ export const Lobby = ({
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-slate-950 text-white p-4">
-      <h1 className="text-3xl font-bold mb-2 mt-8">
-        🕵️ Hidden Agents
-      </h1>
+      <h1 className="text-3xl font-bold mb-2 mt-8">🕵️ Hidden Agents</h1>
 
       <div className="bg-slate-900 rounded-xl p-4 w-full max-w-md mb-4">
-        <p className="text-orange-400 text-sm mb-1">TODAY'S MYSTERY</p>
+        <p className="text-orange-400 text-sm mb-1">TODAY&apos;S MYSTERY</p>
         <p className="text-gray-300 text-sm italic">
           {game.mystery || 'A new mystery awaits...'}
         </p>
@@ -44,9 +36,7 @@ export const Lobby = ({
       <div className="bg-slate-900 rounded-xl p-4 w-full max-w-md mb-4">
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-lg font-semibold">Players</h2>
-          <span className="text-sm text-gray-400">
-            {playerCount} / 10
-          </span>
+          <span className="text-sm text-gray-400">{playerCount} / 10</span>
         </div>
 
         {players.length === 0 && (
@@ -62,7 +52,7 @@ export const Lobby = ({
               className="flex items-center justify-between bg-slate-800 rounded-lg px-3 py-2"
             >
               <div className="flex items-center gap-2">
-                <span className="text-lg">{ROLE_EMOJI[player.role] || '👤'}</span>
+                <span className="text-lg">👤</span>
                 <span className="text-sm">
                   {player.username}
                   {player.username === username && (
@@ -129,9 +119,7 @@ export const Lobby = ({
         )}
       </div>
 
-      <p className="mt-8 text-gray-600 text-xs">
-        Reddit Hackathon 2026
-      </p>
+      <p className="mt-8 text-gray-600 text-xs">Reddit Hackathon 2026</p>
     </div>
   );
 };
