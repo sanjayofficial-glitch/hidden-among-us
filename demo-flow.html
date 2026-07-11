@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hidden Agents — Full Flow Demo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{display:['Space Grotesk','sans-serif'],body:['Manrope','sans-serif']}}}}</script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--glass-bg:rgba(13,20,36,0.6);--glass-border:rgba(255,255,255,0.08);--ease-out-expo:cubic-bezier(0.16,1,0.3,1)}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Manrope',sans-serif}
+body{background:#050B14;color:white;overflow:hidden;width:100vw;height:100vh}
+.font-display{font-family:'Space Grotesk',sans-serif}
+.glass-panel{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);box-shadow:0 8px 32px 0 rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.1)}
+.glow-text-orange{text-shadow:0 0 20px rgba(255,69,0,0.6)}
+.glow-text-red{text-shadow:0 0 20px rgba(239,68,68,0.6)}
+.glow-text-blue{text-shadow:0 0 20px rgba(14,165,233,0.6)}
+.glow-text-green{text-shadow:0 0 20px rgba(16,185,129,0.6)}
+.glow-text-purple{text-shadow:0 0 20px rgba(139,92,246,0.6)}
+@keyframes breathe{0%,100%{transform:scale(1);filter:drop-shadow(0 0 10px rgba(255,255,255,0.1))}50%{transform:scale(1.02);filter:drop-shadow(0 0 25px rgba(255,255,255,0.3))}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes stampSlam{0%{transform:scale(3) rotate(-15deg);opacity:0;filter:blur(10px)}50%{transform:scale(0.9) rotate(2deg);opacity:1;filter:blur(0)}100%{transform:scale(1) rotate(-5deg);opacity:1}}
+@keyframes cinematicShake{0%,100%{transform:translate(0,0)}10%{transform:translate(-5px,-3px)}20%{transform:translate(5px,-3px)}30%{transform:translate(-5px,3px)}40%{transform:translate(5px,3px)}50%{transform:translate(-2px,-2px)}}
+@keyframes heartbeat{0%{transform:scale(1)}15%{transform:scale(1.3);box-shadow:0 0 40px #ef4444}30%{transform:scale(1)}45%{transform:scale(1.3);box-shadow:0 0 60px #ef4444}60%{transform:scale(1)}}
+@keyframes radarSweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+@keyframes countDown{from{width:100%}to{width:0%}}
+.animate-breathe{animation:breathe 3s infinite}
+.animate-pulse{animation:pulse 2s infinite}
+.animate-spin-slow{animation:spin 1.5s linear infinite}
+.animate-slide-up{animation:slideUp 0.6s var(--ease-out-expo) both}
+.animate-slam{animation:stampSlam 0.8s cubic-bezier(0.175,0.885,0.32,1.275) both}
+.animate-shake{animation:cinematicShake 0.5s ease-out}
+.animate-heartbeat{animation:heartbeat 1s infinite}
+.animate-fade-in{animation:fadeIn 0.5s ease both}
+.btn-primary{background:linear-gradient(to bottom right,#f97316,#dc2626);box-shadow:0 0 20px rgba(255,69,0,0.4);border:1px solid rgba(255,165,0,0.5);color:white;border-radius:1rem;padding:16px 24px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;letter-spacing:0.1em;text-transform:uppercase;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden}
+.btn-spy{background:linear-gradient(to bottom right,#dc2626,#7f1d1d);box-shadow:0 0 20px rgba(239,68,68,0.4);border:1px solid rgba(239,68,68,0.5);color:white;border-radius:1rem;padding:16px 24px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;letter-spacing:0.1em;text-transform:uppercase;width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-det{background:linear-gradient(to bottom right,#0ea5e9,#1e40af);box-shadow:0 0 20px rgba(14,165,233,0.4);border:1px solid rgba(14,165,233,0.5);color:white;border-radius:1rem;padding:16px 24px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;letter-spacing:0.1em;text-transform:uppercase;width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
+.screen{display:none;position:absolute;inset:0}
+.screen.active{display:flex}
+.transition-overlay{position:fixed;inset:0;background:#050B14;z-index:999;pointer-events:none;opacity:0;transition:opacity 0.4s}
+.transition-overlay.active{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="transition-overlay" id="transition"></div>
+
+<!-- ==================== 1. SPLASH ==================== -->
+<div id="splash" class="screen active flex-col items-center justify-center text-white p-6">
+  <div class="w-full max-w-sm flex flex-col items-center">
+    <div class="relative mb-8">
+      <div class="absolute inset-0 bg-orange-500/20 blur-3xl rounded-full scale-150 animate-breathe"></div>
+      <div class="text-8xl relative z-10" style="filter:drop-shadow(0 0 20px rgba(255,255,255,0.6))">🕵️</div>
+    </div>
+    <h1 class="text-6xl font-black font-display text-transparent bg-clip-text text-center tracking-tighter leading-none mb-4 glow-text-orange" style="background-image:linear-gradient(to bottom right,#fb923c,#e11d48)">HIDDEN<br>AGENTS</h1>
+    <p class="text-sm font-medium text-blue-200/60 uppercase tracking-[0.2em] mb-12 text-center">Reddit Undercover</p>
+    <div class="glass-panel rounded-3xl p-6 w-full flex flex-col items-center relative overflow-hidden mb-8">
+      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent opacity-50"></div>
+      <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-3xl" style="filter:drop-shadow(0 0 10px rgba(255,255,255,0.2))">🕵️</div>
+      <h2 class="text-xl font-bold text-white mt-4 mb-1">u/sherlock_holmes</h2>
+      <p class="text-xs text-orange-400 font-bold tracking-widest uppercase mb-6">Level 1 Agent</p>
+      <div class="w-full bg-slate-950/50 rounded-xl p-3 border border-white/5 mb-6 flex justify-between items-center">
+        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Network Status</span>
+        <span class="text-xs font-bold text-white" id="splash-count">3 Online</span>
+      </div>
+      <button class="btn-primary" onclick="goTo('lobby')"><span class="text-lg">🔥</span> Enter Matchmaking</button>
+    </div>
+    <div class="flex items-center justify-center gap-3 text-xs text-orange-400 font-medium tracking-widest uppercase h-6">
+      <span class="w-4 h-4 rounded-full border-2 border-orange-500 border-t-transparent animate-spin-slow"></span>
+      <span class="animate-pulse" id="splash-msg">Searching suspicious comment history...</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 2. LOBBY ==================== -->
+<div id="lobby" class="screen flex-col text-white p-4" style="max-width:480px;margin:0 auto">
+  <header class="flex justify-between items-end mb-6 mt-8">
+    <div><h1 class="text-3xl font-display font-black text-white tracking-tight">LOBBY</h1><p class="text-xs text-orange-400 font-bold tracking-widest uppercase mt-1">Mission #a3f8c2d1</p></div>
+    <div class="glass-panel px-3 py-1.5 rounded-lg" style="border-color:rgba(255,69,0,0.3)"><p class="text-[10px] text-gray-400 uppercase tracking-widest text-right">Assembling</p><p class="text-sm font-bold text-orange-400" id="lobby-count">5 / 10</p></div>
+  </header>
+  <div class="glass-panel rounded-2xl p-5 mb-6 relative overflow-hidden" style="border-left:4px solid #f97316">
+    <div class="absolute right-[-10px] top-[-10px] text-6xl opacity-10 rotate-12" style="filter:blur(1px)">📜</div>
+    <p class="text-[10px] font-bold text-orange-400 mb-2 tracking-[0.2em] uppercase">Current Directive</p>
+    <p class="text-sm text-gray-200 font-medium leading-relaxed italic">"The subreddit mascot disappeared overnight."</p>
+  </div>
+  <h2 class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3 px-1">Operatives</h2>
+  <div class="space-y-3 mb-4" style="max-height:280px;overflow-y:auto" id="lobby-players">
+    <div class="glass-panel rounded-2xl p-3 flex items-center justify-between"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-orange-500 bg-orange-950 text-xl" style="box-shadow:0 0 15px rgba(255,69,0,0.5)">🕵️</div><div><p class="text-sm font-bold text-white tracking-wide">u/sherlock_holmes <span class="text-gray-500 ml-1 text-xs">(you)</span></p><p class="text-[10px] uppercase font-bold tracking-widest mt-0.5 text-gray-400">Host</p></div></div><div class="w-8 h-8 rounded-full flex items-center justify-center text-orange-400" style="background:rgba(255,69,0,0.2);border:1px solid rgba(255,69,0,0.5)">👑</div></div>
+    <div class="glass-panel rounded-2xl p-3 flex items-center justify-between"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xl">😎</div><div><p class="text-sm font-bold text-white tracking-wide">u/cool_agent</p><p class="text-[10px] uppercase font-bold tracking-widest mt-0.5 text-gray-400">Ready</p></div></div></div>
+    <div class="glass-panel rounded-2xl p-3 flex items-center justify-between"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xl">🤖</div><div><p class="text-sm font-bold text-white tracking-wide">u/detective_pro</p><p class="text-[10px] uppercase font-bold tracking-widest mt-0.5 text-gray-400">Ready</p></div></div></div>
+    <div class="glass-panel rounded-2xl p-3 flex items-center justify-between"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xl">🤔</div><div><p class="text-sm font-bold text-white tracking-wide">u/mystery_fan</p><p class="text-[10px] uppercase font-bold tracking-widest mt-0.5 text-gray-400">Ready</p></div></div></div>
+    <div class="glass-panel rounded-2xl p-3 flex items-center justify-between"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xl">👻</div><div><p class="text-sm font-bold text-white tracking-wide">u/ghost_redditor</p><p class="text-[10px] uppercase font-bold tracking-widest mt-0.5 text-gray-400">Ready</p></div></div></div>
+  </div>
+  <button class="btn-primary" onclick="goTo('role-reveal')">🚀 Deploy Team (5/10)</button>
+</div>
+
+<!-- ==================== 3. ROLE REVEAL: SPY ==================== -->
+<div id="role-reveal" class="screen flex-col items-center justify-center text-white p-6" style="background:radial-gradient(ellipse at center,rgba(127,29,29,0.6),transparent 70%)">
+  <p class="text-[10px] text-white tracking-[0.5em] font-bold mb-12 uppercase animate-pulse opacity-80">Decrypting Identity...</p>
+  <div id="role-spinner" class="relative w-32 h-32 flex items-center justify-center mb-8">
+    <div class="absolute inset-0 rounded-full border border-blue-500/30 overflow-hidden">
+      <div class="absolute top-1/2 left-1/2 w-[200%] h-[200%] bg-gradient-to-tr from-transparent via-blue-500/50 to-transparent origin-top-left" style="animation:radarSweep 1.5s linear infinite"></div>
+    </div>
+    <span class="text-4xl relative z-10 opacity-50">❓</span>
+  </div>
+  <div id="role-revealed" style="display:none" class="flex flex-col items-center animate-shake" >
+    <div class="relative mb-12 flex items-center justify-center animate-slam">
+      <div class="absolute inset-0 border-2 border-red-500 rounded-3xl" style="transform:rotate(3deg)"></div>
+      <div class="absolute inset-0 border-2 border-red-500 rounded-3xl opacity-50" style="transform:rotate(-3deg)"></div>
+      <div class="absolute inset-0 bg-red-950/50 rounded-3xl blur-2xl animate-breathe" style="box-shadow:0 0 50px rgba(239,68,68,0.6)"></div>
+      <div class="w-32 h-32 rounded-2xl flex items-center justify-center border-2 border-red-500 bg-red-950 text-6xl relative z-10" style="box-shadow:0 0 15px rgba(239,68,68,0.5)">🕵️</div>
+    </div>
+    <div class="text-center mb-12">
+      <p class="text-sm text-gray-300 mb-2 uppercase tracking-widest font-bold">You Are</p>
+      <h1 class="text-6xl font-black font-display tracking-tighter mb-6 text-red-500 glow-text-red">THE SPY</h1>
+      <div class="glass-panel p-5 rounded-2xl max-w-[280px] mx-auto">
+        <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 border-b border-white/10 pb-2">Directives</h3>
+        <p class="text-gray-200 text-sm font-medium leading-relaxed">Eliminate citizens one by one. Survive until you equal their numbers.</p>
+      </div>
+    </div>
+    <button class="btn-spy" onclick="goTo('night-spy')" style="max-width:320px;position:absolute;bottom:48px">Acknowledge</button>
+  </div>
+</div>
+
+<!-- ==================== 4. NIGHT PHASE (SPY) ==================== -->
+<div id="night-spy" class="screen flex-col text-white p-4" style="max-width:480px;margin:0 auto">
+  <div class="text-center mb-8 mt-8">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full glass-panel mb-4" style="box-shadow:0 0 20px rgba(139,92,246,0.3)"><span class="text-3xl">🌙</span></div>
+    <h1 class="text-3xl font-display font-black text-white tracking-widest uppercase mb-1 glow-text-purple">Night Phase</h1>
+    <p class="text-xs text-gray-400 font-medium tracking-[0.2em] uppercase">The City Sleeps</p>
+  </div>
+  <div class="glass-panel rounded-2xl p-4 mb-6 text-center relative overflow-hidden" style="border-top:2px solid #ef4444">
+    <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-red-500/10 to-transparent pointer-events-none"></div>
+    <p class="text-[10px] font-bold uppercase tracking-widest mb-1 text-red-500 relative z-10">ELIMINATE TARGET</p>
+    <p class="text-sm text-gray-300 relative z-10">Select a player to eliminate tonight.</p>
+  </div>
+  <div class="space-y-3 flex-1 overflow-y-auto pb-4 px-1" id="night-targets">
+    <div class="glass-panel rounded-2xl p-3 flex items-center justify-between" onclick="selectTarget(this,'det')"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xl">🤖</div><p class="text-sm font-bold text-gray-300">u/detective_pro</p></div><div class="w-8 h-8 rounded-full border-2 border-white/20 flex items-center justify-center text-transparent"><span class="font-bold text-sm">✓</span></div></div>
+    <div class="glass-panel rounded-2xl p-3 flex items-center justify-between" onclick="selectTarget(this,'mystery')"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xl">🤔</div><p class="text-sm font-bold text-gray-300">u/mystery_fan</p></div><div class="w-8 h-8 rounded-full border-2 border-white/20 flex items-center justify-center text-transparent"><span class="font-bold text-sm">✓</span></div></div>
+    <div class="glass-panel rounded-2xl p-3 flex items-center justify-between" onclick="selectTarget(this,'cool')"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xl">😎</div><p class="text-sm font-bold text-gray-300">u/cool_agent</p></div><div class="w-8 h-8 rounded-full border-2 border-white/20 flex items-center justify-center text-transparent"><span class="font-bold text-sm">✓</span></div></div>
+    <div class="glass-panel rounded-2xl p-3 flex items-center justify-between" onclick="selectTarget(this,'ghost')"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xl">👻</div><p class="text-sm font-bold text-gray-300">u/ghost_redditor</p></div><div class="w-8 h-8 rounded-full border-2 border-white/20 flex items-center justify-center text-transparent"><span class="font-bold text-sm">✓</span></div></div>
+  </div>
+  <button class="btn-spy" id="night-confirm" onclick="goTo('discussion')" style="opacity:0.5;pointer-events:none">Awaiting Selection</button>
+</div>
+
+<!-- ==================== 5. DISCUSSION ==================== -->
+<div id="discussion" class="screen flex-col text-white p-4" style="max-width:480px;margin:0 auto">
+  <div class="glass-panel rounded-3xl p-4 mb-4 flex items-center justify-between" style="box-shadow:0 10px 30px rgba(245,158,11,0.2);border-top:2px solid #f97316;position:relative;overflow:hidden">
+    <div class="absolute right-0 top-0 w-32 h-32 rounded-full" style="background:rgba(249,115,22,0.2);filter:blur(40px);transform:translate(25%,-50%)"></div>
+    <div class="flex items-center gap-4 relative z-10">
+      <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl" style="background:rgba(249,115,22,0.2);border:1px solid rgba(249,115,22,0.3)">💬</div>
+      <div><h2 class="text-sm font-bold font-display uppercase tracking-[0.2em] text-orange-400">Discussion</h2><p class="text-[10px] text-gray-400 uppercase tracking-widest mt-0.5">Round 1</p></div>
+    </div>
+    <div class="text-4xl font-black font-display text-white relative z-10 glow-text-orange" id="disc-timer">0:60</div>
+  </div>
+  <div class="glass-panel border-l-4 border-blue-500 rounded-2xl p-4 mb-4 flex gap-4 items-start" style="background:rgba(30,58,138,0.4)">
+    <div class="w-10 h-10 rounded-full flex items-center justify-center text-xl flex-shrink-0" style="background:rgba(14,165,233,0.2)">🔎</div>
+    <div><p class="text-[10px] font-bold text-blue-400 uppercase tracking-[0.2em] mb-1">Verified Intel</p><p class="text-xs text-gray-200 leading-relaxed">Investigation confirms <span class="font-bold text-white px-1" style="background:rgba(255,255,255,0.1);border-radius:4px">u/cool_agent</span> is <span class="font-bold text-red-400 px-1.5 py-0.5" style="background:rgba(127,29,29,0.8);border-radius:4px;box-shadow:0 0 10px rgba(239,68,68,0.5)">THE SPY</span>.</p></div>
+  </div>
+  <div class="flex items-center justify-center gap-4 my-3 opacity-60"><div class="h-px bg-white/20 flex-1"></div><p class="text-[9px] text-gray-300 uppercase tracking-[0.3em] font-bold">Dawn Breaks</p><div class="h-px bg-white/20 flex-1"></div></div>
+  <div class="flex justify-center mb-4">
+    <div class="px-5 py-2.5 rounded-2xl flex items-center gap-3" style="background:rgba(127,29,29,0.6);border:1px solid rgba(239,68,68,0.3);box-shadow:0 5px 15px rgba(239,68,68,0.2);backdrop-filter:blur(12px)"><span class="text-lg">💀</span><span class="text-xs font-bold text-red-400 tracking-wide">u/old_player was eliminated.</span></div>
+  </div>
+  <div class="flex-1 overflow-y-auto mb-4 space-y-4" id="disc-messages">
+    <div class="flex gap-3 animate-slide-up" style="animation-delay:0.1s"><div class="w-8 h-8 rounded-2xl flex items-center justify-center border border-white/10 bg-slate-800/80 text-xs flex-shrink-0">🕵️</div><div class="flex flex-col max-w-[85%]"><span class="text-[10px] font-bold text-gray-400 tracking-wide mb-1.5 pl-1">u/sherlock_holmes</span><div class="glass-panel rounded-2xl rounded-tl-sm p-3.5" style="background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.05)"><p class="text-sm text-gray-200 leading-relaxed font-medium">I saw cool_agent near the admin panel at 3am. Very sus.</p></div></div></div>
+    <div class="flex gap-3 animate-slide-up" style="animation-delay:0.3s"><div class="w-8 h-8 rounded-2xl flex items-center justify-center border border-white/10 bg-slate-800/80 text-xs flex-shrink-0">😎</div><div class="flex flex-col max-w-[85%]"><span class="text-[10px] font-bold text-gray-400 tracking-wide mb-1.5 pl-1">u/cool_agent</span><div class="glass-panel rounded-2xl rounded-tl-sm p-3.5" style="background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.05)"><p class="text-sm text-gray-200 leading-relaxed font-medium">Bro I was literally sleeping! Check my post history 🙄</p></div></div></div>
+    <div class="flex gap-3 animate-slide-up" style="animation-delay:0.5s"><div class="w-8 h-8 rounded-2xl flex items-center justify-center border border-white/10 bg-slate-800/80 text-xs flex-shrink-0">🤖</div><div class="flex flex-col max-w-[85%]"><span class="text-[10px] font-bold text-gray-400 tracking-wide mb-1.5 pl-1">u/detective_pro</span><div class="glass-panel rounded-2xl rounded-tl-sm p-3.5" style="background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.05)"><p class="text-sm text-gray-200 leading-relaxed font-medium">I investigated cool_agent last night. The results speak for themselves.</p></div></div></div>
+    <div class="flex gap-3 animate-slide-up" style="animation-delay:0.7s"><div class="w-8 h-8 rounded-2xl flex items-center justify-center border border-white/10 bg-slate-800/80 text-xs flex-shrink-0">🤔</div><div class="flex flex-col max-w-[85%]"><span class="text-[10px] font-bold text-gray-400 tracking-wide mb-1.5 pl-1">u/mystery_fan</span><div class="glass-panel rounded-2xl rounded-tl-sm p-3.5" style="background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.05)"><p class="text-sm text-gray-200 leading-relaxed font-medium">The detective confirmed it. cool_agent has to go.</p></div></div></div>
+  </div>
+  <button class="btn-primary" onclick="goTo('voting')">🗳️ Proceed to Vote</button>
+</div>
+
+<!-- ==================== 6. VOTING ==================== -->
+<div id="voting" class="screen flex-col text-white p-4" style="max-width:480px;margin:0 auto">
+  <div class="text-center mb-6 mt-8">
+    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full glass-panel mb-4 relative" style="border:1px solid rgba(255,69,0,0.5);box-shadow:0 0 30px rgba(255,69,0,0.4)">
+      <div class="absolute inset-0 rounded-full animate-breathe" style="background:rgba(255,69,0,0.2)"></div>
+      <span class="text-4xl relative z-10">🗳️</span>
+    </div>
+    <h1 class="text-3xl font-display font-black text-white tracking-widest uppercase mb-1 glow-text-orange">Cast Vote</h1>
+    <p class="text-xs text-gray-400 font-medium tracking-[0.2em] uppercase">Who is the Spy?</p>
+  </div>
+  <div class="glass-panel rounded-2xl p-4 mb-6" style="border-top:1px solid rgba(255,255,255,0.1)">
+    <div class="flex justify-between items-center text-[10px] text-gray-400 font-bold uppercase mb-3 px-1 tracking-widest"><span>Voting Progress</span><span class="text-orange-400 px-2 py-1 rounded" style="background:rgba(255,69,0,0.1)" id="vote-progress">0 of 5 Votes Cast</span></div>
+    <div class="h-2 w-full rounded-full overflow-hidden" style="background:#050B14;border:1px solid rgba(255,255,255,0.05)"><div class="h-full rounded-full transition-all duration-500" id="vote-bar" style="width:0%;background:linear-gradient(to right,#dc2626,#facc15);box-shadow:0 0 10px rgba(255,69,0,0.8)"></div></div>
+  </div>
+  <div class="space-y-4 flex-1 overflow-y-auto pb-4 px-1" id="vote-targets">
+    <div class="glass-panel rounded-2xl flex items-center justify-between p-4" style="height:88px;cursor:pointer" onclick="castVote(this,'cool_agent',1)"><div class="flex items-center gap-4 relative z-10"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xl">😎</div><p class="text-base font-bold text-white tracking-wide">u/cool_agent</p></div><div class="flex flex-col items-end relative z-10"><span class="text-xl font-black text-orange-400 font-display leading-none vote-count">0</span><span class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">Votes</span></div></div>
+    <div class="glass-panel rounded-2xl flex items-center justify-between p-4" style="height:88px;cursor:pointer" onclick="castVote(this,'mystery_fan',1)"><div class="flex items-center gap-4 relative z-10"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xl">🤔</div><p class="text-base font-bold text-white tracking-wide">u/mystery_fan</p></div><div class="flex flex-col items-end relative z-10"><span class="text-xl font-black text-orange-400 font-display leading-none vote-count">0</span><span class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">Votes</span></div></div>
+    <div class="glass-panel rounded-2xl flex items-center justify-between p-4" style="height:88px;cursor:pointer" onclick="castVote(this,'ghost_redditor',1)"><div class="flex items-center gap-4 relative z-10"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xl">👻</div><p class="text-base font-bold text-white tracking-wide">u/ghost_redditor</p></div><div class="flex flex-col items-end relative z-10"><span class="text-xl font-black text-orange-400 font-display leading-none vote-count">0</span><span class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">Votes</span></div></div>
+  </div>
+  <button class="btn-primary" onclick="goTo('elimination')">Confirm Verdict</button>
+</div>
+
+<!-- ==================== 7. ELIMINATION REVEAL ==================== -->
+<div id="elimination" class="screen flex-col items-center justify-center text-white p-6 animate-shake" style="background:radial-gradient(ellipse at center,rgba(127,29,29,0.8),#050B14 70%)">
+  <p class="text-[10px] text-red-300 tracking-[0.4em] font-bold mb-6 uppercase opacity-80">Elimination Confirmed</p>
+  <div class="relative mb-12 flex items-center justify-center animate-slam">
+    <div class="absolute inset-0 rounded-full blur-3xl scale-[2] animate-breathe" style="background:rgba(220,38,38,0.4)"></div>
+    <div class="w-32 h-32 rounded-2xl flex items-center justify-center border-2 border-slate-700 bg-slate-900 text-6xl relative z-10 grayscale opacity-60">😎</div>
+    <div class="absolute -bottom-6 -right-6 text-7xl z-20" style="transform:rotate(12deg);filter:drop-shadow(0 10px 20px rgba(0,0,0,0.8))">💀</div>
+  </div>
+  <div class="text-center mb-10"><h2 class="text-3xl font-bold text-white mb-2 tracking-wide">u/cool_agent</h2><h3 class="text-sm text-gray-400 font-medium">Was eliminated by the town.</h3></div>
+  <div class="glass-panel rounded-3xl p-8 w-full text-center" style="border:2px solid #ef4444;background:rgba(127,29,29,0.6);box-shadow:0 20px 50px rgba(239,68,68,0.5);transform:scale(1.1)">
+    <p class="text-[10px] text-red-300 uppercase tracking-[0.3em] font-bold mb-3">True Identity</p>
+    <h1 class="text-5xl font-black font-display tracking-widest inline-block px-6 py-3" style="border:4px solid #ef4444;background:rgba(127,29,29,0.8);color:#ef4444;transform:rotate(-4deg);filter:drop-shadow(0 0 15px rgba(239,68,68,0.8))">THE SPY</h1>
+  </div>
+  <button class="btn-primary" onclick="goTo('game-end')" style="max-width:320px;position:absolute;bottom:48px">Continue to Debrief</button>
+</div>
+
+<!-- ==================== 8. GAME END ==================== -->
+<div id="game-end" class="screen flex-col text-white p-4 overflow-y-auto" style="max-width:480px;margin:0 auto">
+  <div class="flex flex-col items-center pb-8 pt-12">
+    <div class="relative mb-6"><div class="absolute inset-0 rounded-full scale-[2] animate-breathe" style="background:rgba(16,185,129,0.4);filter:blur(40px)"></div><div class="text-8xl relative z-10" style="filter:drop-shadow(0 10px 20px rgba(0,0,0,0.5))">🏆</div></div>
+    <h1 class="text-5xl font-black font-display text-transparent bg-clip-text mb-2 tracking-tighter text-center leading-none" style="background-image:linear-gradient(to bottom,#6ee7b7,#059669);filter:drop-shadow(0 0 20px rgba(16,185,129,0.6))">CITIZENS WIN</h1>
+    <p class="text-sm mb-8 uppercase tracking-[0.3em] font-bold px-4 py-1.5 rounded-full text-emerald-300/80" style="background:rgba(6,78,59,0.5);border:1px solid rgba(16,185,129,0.3)">The Spy has been eliminated</p>
+    <div class="glass-panel rounded-[2rem] p-6 w-full mb-6" style="border-top:2px solid rgba(16,185,129,0.5);box-shadow:0 15px 50px rgba(16,185,129,0.2)">
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-white/10 pb-3">Your Result</p>
+      <div class="flex items-center gap-5 mb-4 p-4 rounded-2xl" style="background:rgba(5,11,20,0.4);border:1px solid rgba(255,255,255,0.05)">
+        <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-blue-500 bg-blue-950 text-3xl" style="box-shadow:0 0 15px rgba(14,165,233,0.5)">🔍</div>
+        <div><h2 class="text-xl font-bold text-white tracking-wide">u/sherlock_holmes</h2><p class="text-[10px] font-bold uppercase tracking-widest mt-1 inline-block px-2 py-0.5 rounded" style="background:rgba(30,64,175,0.8);color:#93c5fd;border:1px solid #3b82f6">DETECTIVE</p></div>
+      </div>
+      <div class="text-center"><p class="text-3xl mb-2 text-emerald-400">🎉</p><p class="text-lg font-bold text-emerald-400">You Won!</p></div>
+    </div>
+    <div class="glass-panel rounded-[2rem] p-6 w-full mb-6">
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-white/10 pb-3">Roles Revealed</p>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between rounded-xl px-3 py-2" style="background:rgba(30,41,59,0.5)"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-2xl flex items-center justify-center border border-slate-700 bg-slate-900 text-xs grayscale opacity-60">😎</div><span class="text-sm text-gray-300">u/cool_agent</span></div><span class="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded" style="background:rgba(127,29,29,0.8);color:#fca5a5;border:1px solid #ef4444">SPY</span></div>
+        <div class="flex items-center justify-between rounded-xl px-3 py-2" style="background:rgba(30,41,59,0.5)"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-2xl flex items-center justify-center border-2 border-blue-500 bg-blue-950 text-xs">🔍</div><span class="text-sm text-gray-300">u/sherlock_holmes <span class="text-gray-500 ml-1 text-xs">(you)</span></span></div><span class="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded" style="background:rgba(30,64,175,0.8);color:#93c5fd;border:1px solid #3b82f6">DETECTIVE</span></div>
+        <div class="flex items-center justify-between rounded-xl px-3 py-2" style="background:rgba(30,41,59,0.5)"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xs">🤖</div><span class="text-sm text-gray-300">u/detective_pro</span></div><span class="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded" style="background:rgba(31,41,55,0.8);color:#d1d5db;border:1px solid #6b7280">CITIZEN</span></div>
+        <div class="flex items-center justify-between rounded-xl px-3 py-2" style="background:rgba(30,41,59,0.5)"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xs">🤔</div><span class="text-sm text-gray-300">u/mystery_fan</span></div><span class="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded" style="background:rgba(31,41,55,0.8);color:#d1d5db;border:1px solid #6b7280">CITIZEN</span></div>
+        <div class="flex items-center justify-between rounded-xl px-3 py-2" style="background:rgba(30,41,59,0.5)"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xs">👻</div><span class="text-sm text-gray-300">u/ghost_redditor</span></div><span class="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded" style="background:rgba(31,41,55,0.8);color:#d1d5db;border:1px solid #6b7280">CITIZEN</span></div>
+      </div>
+    </div>
+    <div class="glass-panel rounded-[2rem] p-6 w-full mb-6">
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-white/10 pb-3">Game Stats</p>
+      <div class="space-y-3 text-sm">
+        <div class="flex justify-between text-gray-400"><span>Rounds Played</span><span class="text-white font-bold">3</span></div>
+        <div class="flex justify-between text-gray-400"><span>Players</span><span class="text-white font-bold">5</span></div>
+        <div class="flex justify-between text-gray-400"><span>Eliminated</span><span class="text-white font-bold">2</span></div>
+      </div>
+    </div>
+    <div class="space-y-3 w-full">
+      <button class="btn-primary" onclick="goTo('leaderboard')">🏆 View Global Rankings</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 9. LEADERBOARD ==================== -->
+<div id="leaderboard" class="screen flex-col text-white p-4 overflow-hidden" style="max-width:480px;margin:0 auto">
+  <div class="text-center mb-8 mt-12">
+    <h1 class="text-4xl font-display font-black text-white mb-2 tracking-tight">🏆 HALL OF FAME</h1>
+    <p class="text-xs text-orange-400 uppercase tracking-[0.3em] font-bold px-4 py-1.5 rounded-full inline-block" style="background:rgba(127,29,29,0.5);border:1px solid rgba(255,69,0,0.3)">Global Rankings</p>
+  </div>
+  <div class="flex justify-center items-end gap-1 mb-6 h-56 px-2">
+    <div class="flex flex-col items-center" style="width:30%"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xl mb-3">🤖</div><p class="text-[9px] text-gray-300 font-bold uppercase tracking-widest truncate w-full text-center mb-2">u/detective_pro</p><div class="w-full h-24 rounded-t-2xl flex justify-center pt-3 relative overflow-hidden" style="background:linear-gradient(to top,#050B14,#475569);border-top:2px solid #94a3b8;box-shadow:0 0 20px rgba(0,0,0,0.8)"><div class="absolute inset-0" style="background:rgba(255,255,255,0.05)"></div><span class="text-slate-200 font-black text-2xl font-display opacity-80">2</span></div></div>
+    <div class="flex flex-col items-center" style="width:40%;z-index:20"><div class="relative mb-3"><div class="absolute -top-8 left-1/2 -translate-x-1/2 text-4xl z-20 animate-breathe" style="filter:drop-shadow(0 5px 10px rgba(0,0,0,0.5))">👑</div><div class="absolute inset-0 rounded-full scale-150" style="background:rgba(250,204,21,0.4);filter:blur(16px)"></div><div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-orange-500 bg-orange-950 text-3xl relative z-10" style="box-shadow:0 0 15px rgba(255,69,0,0.5)">🕵️</div></div><p class="text-[10px] text-yellow-400 font-bold uppercase tracking-widest truncate w-full text-center mb-2">u/spy_master</p><div class="w-full h-36 rounded-t-2xl flex justify-center pt-4 relative overflow-hidden" style="background:linear-gradient(to top,#78350f,#eab308);border-top:2px solid #fde047;box-shadow:0 0 40px rgba(250,204,21,0.3)"><div class="absolute inset-0" style="background:linear-gradient(to bottom,rgba(255,255,255,0.2),transparent)"></div><span class="text-white font-black text-4xl font-display" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))">1</span></div></div>
+    <div class="flex flex-col items-center" style="width:30%"><div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-white/10 bg-slate-800/80 text-xl mb-3">🕵️</div><p class="text-[9px] text-orange-400 font-bold uppercase tracking-widest truncate w-full text-center mb-2">u/sherlock_holmes</p><div class="w-full h-20 rounded-t-2xl flex justify-center pt-2 relative overflow-hidden" style="background:linear-gradient(to top,#050B14,#7c2d12);border-top:2px solid #c2410c;box-shadow:0 0 20px rgba(0,0,0,0.8)"><div class="absolute inset-0" style="background:rgba(255,255,255,0.05)"></div><span class="text-orange-300 font-black text-xl font-display opacity-80">3</span></div></div>
+  </div>
+  <div class="glass-panel rounded-2xl p-4 flex-1 overflow-y-auto">
+    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">More Players</p>
+    <div class="space-y-2">
+      <div class="flex items-center justify-between rounded-xl px-3 py-2" style="background:rgba(30,41,59,0.5)"><div class="flex items-center gap-3"><span class="text-sm font-bold text-gray-500 w-6">#4</span><div class="w-8 h-8 rounded-2xl flex items-center justify-center border border-white/10 bg-slate-800/80 text-xs">🤔</div><span class="text-sm text-gray-300">u/mystery_fan</span></div><div class="flex items-center gap-3 text-xs text-gray-400"><span>🛡️ 5</span><span>🕵️ 3</span><span class="text-orange-400 font-bold">120</span></div></div>
+      <div class="flex items-center justify-between rounded-xl px-3 py-2" style="background:rgba(30,41,59,0.5)"><div class="flex items-center gap-3"><span class="text-sm font-bold text-gray-500 w-6">#5</span><div class="w-8 h-8 rounded-2xl flex items-center justify-center border border-white/10 bg-slate-800/80 text-xs">😎</div><span class="text-sm text-gray-300">u/cool_agent</span></div><div class="flex items-center gap-3 text-xs text-gray-400"><span>🛡️ 3</span><span>🕵️ 2</span><span class="text-orange-400 font-bold">85</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CONTROLS BAR ==================== -->
+<div style="position:fixed;bottom:0;left:0;right:0;background:rgba(15,23,42,0.95);backdrop-filter:blur(20px);border-top:1px solid rgba(51,65,85,0.5);padding:8px 12px;display:flex;gap:8px;justify-content:center;align-items:center;z-index:200">
+  <button onclick="autoPlay()" id="autoplay-btn" style="background:#16a34a;color:white;border:1px solid #22c55e;border-radius:8px;padding:6px 16px;font-size:12px;cursor:pointer;font-family:'Manrope',sans-serif;font-weight:600">▶ Auto-Play Demo</button>
+  <span style="color:#64748b;font-size:11px">|</span>
+  <span style="color:#94a3b8;font-size:11px;font-weight:600" id="status-text">Click a screen to navigate, or hit Auto-Play</span>
+</div>
+
+<script>
+let selectedTarget = null;
+let voteData = {cool_agent: 0, mystery_fan: 0, ghost_redditor: 0};
+let voteTotal = 0;
+let autoPlaying = false;
+
+function goTo(id) {
+  const t = document.getElementById('transition');
+  t.classList.add('active');
+  setTimeout(() => {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id)?.classList.add('active');
+    t.classList.remove('active');
+  }, 400);
+}
+
+function selectTarget(el, target) {
+  document.querySelectorAll('#night-targets .glass-panel').forEach(c => {
+    c.style.border = '';
+    c.style.boxShadow = '';
+    c.style.background = '';
+    c.querySelector('.w-8')?.classList.remove('bg-red-950','text-white');
+    c.querySelector('.w-8')?.classList.add('border-white/20','text-transparent');
+  });
+  el.style.border = '2px solid #ef4444';
+  el.style.boxShadow = '0 0 30px rgba(239,68,68,0.5)';
+  el.style.background = 'rgba(255,255,255,0.1)';
+  el.querySelector('.w-8')?.classList.add('bg-red-950','text-white');
+  el.querySelector('.w-8')?.classList.remove('border-white/20','text-transparent');
+  selectedTarget = target;
+  document.getElementById('night-confirm').style.opacity = '1';
+  document.getElementById('night-confirm').style.pointerEvents = 'auto';
+  document.getElementById('night-confirm').textContent = 'Confirm Eliminate';
+}
+
+function castVote(el, name, count) {
+  voteData[name] = (voteData[name] || 0) + 1;
+  voteTotal++;
+  el.querySelector('.vote-count').textContent = voteData[name];
+  document.getElementById('vote-progress').textContent = `${voteTotal} of 5 Votes Cast`;
+  document.getElementById('vote-bar').style.width = `${(voteTotal/5)*100}%`;
+}
+
+function setStatus(msg) {
+  document.getElementById('status-text').textContent = msg;
+}
+
+// Auto-play flow
+async function autoPlay() {
+  if (autoPlaying) return;
+  autoPlaying = true;
+  document.getElementById('autoplay-btn').textContent = '⏸ Playing...';
+  document.getElementById('autoplay-btn').style.background = '#dc2626';
+
+  const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+  // Splash
+  setStatus('Splash screen...');
+  await wait(3000);
+
+  // Lobby
+  goTo('lobby');
+  setStatus('Lobby — players joining...');
+  await wait(3500);
+
+  // Role Reveal
+  goTo('role-reveal');
+  setStatus('Decrypting identity...');
+  await wait(2000);
+  document.getElementById('role-spinner').style.display = 'none';
+  document.getElementById('role-revealed').style.display = '';
+  setStatus('Role assigned: THE SPY');
+  await wait(4000);
+
+  // Night Phase
+  goTo('night-spy');
+  setStatus('Night — select target...');
+  await wait(2000);
+  // Auto-select mystery_fan
+  const targets = document.querySelectorAll('#night-targets .glass-panel');
+  selectTarget(targets[1], 'mystery');
+  setStatus('Target selected: u/mystery_fan');
+  await wait(2000);
+
+  // Discussion
+  goTo('discussion');
+  setStatus('Discussion phase...');
+  // Animate timer
+  let t = 60;
+  const timerEl = document.getElementById('disc-timer');
+  const timerInterval = setInterval(() => {
+    t--;
+    if (t <= 0) { clearInterval(timerInterval); return; }
+    timerEl.textContent = `0:${t.toString().padStart(2,'0')}`;
+  }, 1000);
+  await wait(6000);
+
+  // Voting
+  goTo('voting');
+  setStatus('Voting — cast your vote...');
+  await wait(1500);
+  // Auto-vote for cool_agent
+  castVote(targets[0], 'cool_agent', 3);
+  setStatus('Vote cast for u/cool_agent');
+  await wait(3000);
+
+  // Elimination Reveal
+  goTo('elimination');
+  setStatus('Elimination reveal...');
+  await wait(5000);
+
+  // Game End
+  goTo('game-end');
+  setStatus('Game over — Citizens win!');
+  await wait(5000);
+
+  // Leaderboard
+  goTo('leaderboard');
+  setStatus('Leaderboard — Hall of Fame');
+  await wait(4000);
+
+  // Done
+  autoPlaying = false;
+  document.getElementById('autoplay-btn').textContent = '▶ Replay Demo';
+  document.getElementById('autoplay-btn').style.background = '#16a34a';
+  setStatus('Demo complete! Hit Replay to record again.');
+}
+
+// Particle canvas
+(function() {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:-20;pointer-events:none;background:#050B14';
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  let w, h, particles = [];
+  function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+  resize();
+  class P {
+    constructor() { this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-0.5)*0.8;this.vy=(Math.random()-0.5)*0.8;this.r=Math.random()*2+0.5;this.a=Math.random()*0.4+0.1; }
+    update() { this.x+=this.vx;this.y+=this.vy;if(this.x<0)this.x=w;if(this.x>w)this.x=0;if(this.y<0)this.y=h;if(this.y>h)this.y=0; }
+    draw() { ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${this.a})`;ctx.fill(); }
+  }
+  for(let i=0;i<60;i++) particles.push(new P());
+  let t=0;
+  function animate() {
+    ctx.fillStyle='rgba(5,11,20,0.15)';ctx.fillRect(0,0,w,h);
+    t+=0.003;
+    const cx=w/2+Math.sin(t)*200,cy=h/2+Math.cos(t)*200;
+    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,w);
+    g.addColorStop(0,'rgba(255,69,0,0.08)');g.addColorStop(0.5,'rgba(14,165,233,0.04)');g.addColorStop(1,'transparent');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    particles.forEach(p=>{p.update();p.draw()});
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>
